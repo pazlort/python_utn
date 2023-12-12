@@ -1,0 +1,9 @@
+[build-system]
+requires = ['setuptools', 'setuptools-scm']
+build-backend = 'setuptools.build_meta:__legacy__'
+
+[proyect]
+name = 'tp_utn'
+version = '1.0.0'
+
+[proyect.scripts]
