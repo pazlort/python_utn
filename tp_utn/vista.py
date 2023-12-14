@@ -7,10 +7,14 @@ from tkinter import Button
 from modelo import Crud
 from modelo import Complementos
 
+from parametros import *
+
 
 class Ventana:
     def __init__(self, master):
         self.master = master
+        self.crud = Crud()
+        self.complementos = Complementos()
         var_nombre_mascota = StringVar()
         var_edad = StringVar()
         var_color = StringVar()
@@ -26,7 +30,7 @@ class Ventana:
         # configuracion de la página
         self.master.attributes("-fullscreen", True)
         self.master.title("Historias clínicas veterinarias")
-        self.master.configure(bg="#FFBCBA")
+        self.master.configure(bg=param_bg)
 
         # treeview
         self.tree = ttk.Treeview(master, selectmode="browse", height=20)
@@ -45,7 +49,9 @@ class Ventana:
         )
 
         # creo todos los campos
-        insert_text = self.formulario("HISTORIA CLÍNICA", fonts=("Arial", 20, "bold"))
+        insert_text = self.formulario(
+            "HISTORIA CLÍNICA", fonts=(letra, tamaño_title, estilo)
+        )
         nombre_mascota = self.formulario("Nombre mascota: ")
         edad = self.formulario("Edad: ")
         color = self.formulario("Color: ")
@@ -109,13 +115,12 @@ class Ventana:
         self.armando_tree(100, 100, "Teléfono", 9)
         self.armando_tree(200, 200, "Dirección", 10)
         self.armando_tree(100, 100, "Ciudad", 11)
-        complementos.update_tree(self.tree)
+        self.complementos.update_tree(self.tree)
 
         # insertamos botones
-        boton_alta = Button(
-            self.master,
-            text="Alta",
-            command=lambda: crud.alta(
+        boton_alta = self.botones(
+            "Alta",
+            lambda: self.crud.alta(
                 var_nombre_mascota.get(),
                 var_edad.get(),
                 var_color.get(),
@@ -140,12 +145,14 @@ class Ventana:
                 entry_direccion,
                 entry_ciudad,
             ),
+            color_boton,
+            letra_boton,
+            size_boton,
         )
         boton_alta.place(x=200, y=240)
-        boton_selecccionar = Button(
-            self.master,
-            text="Seleccionar",
-            command=lambda: crud.seleccionar(
+        boton_selecccionar = self.botones(
+            "Seleccionar",
+            lambda: self.crud.seleccionar(
                 entry_nombre_mascota,
                 entry_edad,
                 entry_color,
@@ -159,12 +166,14 @@ class Ventana:
                 entry_ciudad,
                 self.tree,
             ),
+            color_boton,
+            letra_boton,
+            size_boton,
         )
         boton_selecccionar.place(x=350, y=240)
-        boton_modificar = Button(
-            self.master,
-            text="Modificar",
-            command=lambda: crud.modificar(
+        boton_modificar = self.botones(
+            "Modificar",
+            lambda: self.crud.modificar(
                 var_nombre_mascota.get(),
                 var_edad.get(),
                 var_color.get(),
@@ -189,16 +198,18 @@ class Ventana:
                 entry_direccion,
                 entry_ciudad,
             ),
+            color_boton,
+            letra_boton,
+            size_boton,
         )
         boton_modificar.place(x=500, y=240)
-        boton_baja = Button(
-            self.master, text="Eliminar", command=lambda: crud.baja(self.tree)
+        boton_baja = self.botones(
+            "Eliminar", lambda: self.crud.baja(self.tree), color_boton, letra_boton, 10
         )
         boton_baja.place(x=650, y=240)
-        boton_borrar = Button(
-            self.master,
-            text="Vaciar campos",
-            command=lambda: complementos.vaciar_campos(
+        boton_borrar = self.botones(
+            "Vaciar campos",
+            lambda: self.complementos.vaciar_campos(
                 entry_nombre_mascota,
                 entry_edad,
                 entry_color,
@@ -211,10 +222,29 @@ class Ventana:
                 entry_direccion,
                 entry_ciudad,
             ),
+            color_boton,
+            letra_boton,
+            size_boton,
         )
         boton_borrar.place(x=800, y=240)
-        boton_cerrar = Button(self.master, text="Cerrar", command=self.master.destroy)
+        boton_cerrar = self.botones("X", self.master.destroy, "red", "Arial", 10)
         boton_cerrar.place(relx=1, y=20, anchor="e")
+
+    def botones(
+        self,
+        text_button,
+        funcion,
+        param_color_boton,
+        param_letra_boton,
+        param_size_boton,
+    ):
+        return Button(
+            self.master,
+            text=text_button,
+            command=funcion,
+            bg=param_color_boton,
+            font=(param_letra_boton, param_size_boton),
+        )
 
     def armando_tree(self, nro_width, nro_minwidth, param_text, nro, nro_anchor="w"):
         if nro > 0:
@@ -231,12 +261,12 @@ class Ventana:
             )
             self.tree.heading("#0", text=param_text)
 
-    def formulario(self, texto_label, fonts=("Arial", 11, "bold")):
+    def formulario(self, texto_label, fonts=(letra, tamaño_text, estilo)):
         return Label(
             self.master,
             text=texto_label,
-            bg="#FFBCBA",
-            fg="#5e6472",
+            bg=param_bg,
+            fg=param_fg,
             font=fonts,
         )
 
@@ -245,18 +275,3 @@ class Ventana:
             self.master,
             textvariable=var_tkinter,
         )
-
-
-crud = Crud()
-complementos = Complementos()
-
-
-
-#armar metodo con los botones
-#armar archivo con parametros. por ejemplo fonts, bg, fg, etc. y lo importo
-#validacion de campos en otro modulo
-#Se debe agregar el trabajo con excepciones
-#Se debe documentar mediante sphinx
-#Uso de clases para módulo de conexión a base de datos
-#quizas pyqt--> averiguar
-
