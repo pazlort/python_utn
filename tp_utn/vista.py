@@ -7,7 +7,17 @@ from tkinter import Button
 from modelo import Crud
 from modelo import Complementos
 
-from parametros import *
+from parametros import (
+    letra,
+    estilo,
+    tamaño_title,
+    tamaño_text,
+    param_fg,
+    param_bg,
+    letra_boton,
+    size_boton,
+    color_boton,
+)
 
 
 class Ventana:

@@ -1,6 +1,8 @@
 from peewee import *
+from mensajes import Mensajes
 
 db = SqliteDatabase("db_tp_final.db")
+mensaje = Mensajes()
 
 
 class BaseModel(Model):
@@ -23,5 +25,13 @@ class Historiaclinica(BaseModel):
     ciudad = CharField()
 
 
-db.connect()
-db.create_tables([Historiaclinica])
+try:
+    db.connect()
+    print("Conexión a la base de datos establecida correctamente.")
+    db.create_tables([Historiaclinica])
+    print("tablas creadas")
+except OperationalError as e:
+    print(f"Error al conectar a la base de datos: {e}")
+finally:
+    db.close()
+    print("Conexión a la base de datos cerrada correctamente.")

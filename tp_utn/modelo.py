@@ -1,11 +1,13 @@
-import re
-from tkinter import messagebox
 from database import Historiaclinica
+from validacion import Validar
+from mensajes import Mensajes
 
 
 class Crud:
     def __init__(self):
         self.complementos = Complementos()
+        self.validar = Validar()
+        self.mensaje = Mensajes()
 
     def alta(
         self,
@@ -33,8 +35,24 @@ class Crud:
         entry_direccion,
         entry_ciudad,
     ):
-        patron = "([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+([A-Z|a-z]{2,})+"
-        if re.match(patron, mail):
+        if (
+            self.validar.campos_completos(
+                nombre_mascota,
+                edad,
+                color,
+                especie,
+                raza,
+                sexo,
+                nombre_duenio,
+                mail,
+                telefono,
+                direccion,
+                ciudad,
+            )
+            and self.validar.valor_numerico(edad, "EDAD")
+            and self.validar.valor_numerico(telefono, "TELEFONO")
+            and self.validar.validando_mail(mail)
+        ):
             hc = Historiaclinica()
             hc.nombre_mascota = nombre_mascota
             hc.edad = edad
@@ -62,12 +80,7 @@ class Crud:
                 entry_direccion,
                 entry_ciudad,
             )
-            messagebox.showinfo(
-                message="Su historia clínica se dio de alta exitosamente",
-                title="Historias Clinicas Veterinarias",
-            )
-        else:
-            messagebox.showinfo(message="No ingreso un mail valido", title="ERROR")
+            self.mensaje.showinfo("Su historia clínica se dio de alta exitosamente")
 
     def modificar(
         self,
@@ -100,21 +113,27 @@ class Crud:
         mi_id = item["text"]
         if (
             mi_id
-            and par_nombre_mascota
-            and par_ciudad
-            and par_color
-            and par_direccion
-            and par_edad
-            and par_especie
-            and par_nombre_duenio
-            and par_raza
-            and par_sexo
-            and par_telefono
+            and self.validar.campos_completos(
+                par_nombre_mascota,
+                par_edad,
+                par_color,
+                par_especie,
+                par_raza,
+                par_sexo,
+                par_nombre_duenio,
+                par_mail,
+                par_telefono,
+                par_direccion,
+                par_ciudad,
+            )
+            and self.validar.valor_numerico(par_edad, "EDAD")
+            and self.validar.valor_numerico(par_telefono, "TELEFONO")
         ):
-            res = messagebox.askquestion(
+            res = self.mensaje.askquestion(
                 "Modificar historia clínica",
                 "¿Está seguro que desea modificar esta historia clínica?",
             )
+
             if res == "yes":
                 actualizar = Historiaclinica.update(
                     nombre_mascota=par_nombre_mascota,
@@ -145,42 +164,8 @@ class Crud:
                     entry_ciudad,
                 )
         elif not mi_id:
-            messagebox.showinfo(
-                message="Por favor hacer click en una historia clínica del listado",
-                title="ERROR",
-            )
-        elif (
-            # esto deberia validarlo en el alta pero como pidio solo usemos un regex lo valido aca de forma rustica
-            not par_nombre_mascota
-            and not par_ciudad
-            and not par_color
-            and not par_direccion
-            and not par_edad
-            and not par_especie
-            and not par_nombre_duenio
-            and not par_raza
-            and not par_sexo
-            and not par_telefono
-        ):
-            messagebox.showinfo(
-                message="Por favor presione el botón seleccionar y realice las modificaciones que considere necesarias",
-                title="ERROR",
-            )
-        elif (
-            not par_nombre_mascota
-            and not par_ciudad
-            and not par_color
-            and not par_direccion
-            and not par_edad
-            and not par_especie
-            and not par_nombre_duenio
-            and not par_raza
-            and not par_sexo
-            and not par_telefono
-        ):
-            messagebox.showinfo(
-                message="Por favor ingrese todos los datos solicitados",
-                title="ERROR",
+            self.mensaje.showinfo(
+                "Por favor hacer click en una historia clínica del listado"
             )
 
     def seleccionar(
@@ -228,9 +213,8 @@ class Crud:
             entry_direccion.insert(0, hc.direccion)
             entry_ciudad.insert(0, hc.ciudad)
         else:
-            messagebox.showinfo(
-                message="Por favor hacer click en una historia clínica del listado",
-                title="ERROR",
+            self.mensaje.showinfo(
+                "Por favor hacer click en una historia clínica del listado"
             )
 
     def baja(self, tree):
@@ -238,7 +222,7 @@ class Crud:
         item = tree.item(valor)
         mi_id = item["text"]
         if mi_id:
-            res = messagebox.askquestion(
+            res = self.mensaje.askquestion(
                 "Eliminar historia clínica",
                 "¿Está seguro que desea eliminar esta historia clínica?",
             )
@@ -248,11 +232,9 @@ class Crud:
                 )
                 borrar.delete_instance()
                 tree.delete(valor)
+                self.mensaje.showinfo("La historia clinica se borro con exito")
         else:
-            messagebox.showinfo(
-                message="No seleccionó una historia clínica para eliminar",
-                title="ERROR",
-            )
+            self.mensaje.showinfo("No seleccionó una historia clínica para eliminar")
 
 
 class Complementos:
